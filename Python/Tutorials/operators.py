@@ -1,4 +1,5 @@
 #arithmetic
+#follows BODMAS rules
 
 15 + 23
 
@@ -7,6 +8,10 @@
 20 / 4
 
 22/7
+
+power = 10 ** 2
+print(power)
+
 
 # Comparison >, <, ==
 #results are boolean values True or False
