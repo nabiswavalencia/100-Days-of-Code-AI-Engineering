@@ -1,0 +1,75 @@
+body {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  margin: 0;
+  padding: 1.5rem;
+  background-color: #eef1f5;
+  color: #3a241d;
+}
+
+h1 {
+  color: #3a241d;
+  text-align: center;
+  font-size: 2rem;
+  margin: 0 0 1.5rem;
+}
+
+.board {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  align-items: start;          /* columns size to their own content */
+  gap: 1rem;
+  max-width: 1100px;
+  margin: 0 auto;
+}
+
+.column {
+  background-color: #f5f5f5;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  padding: 1rem;
+  box-sizing: border-box;
+  min-height: 60vh;
+
+  /* stack the cards neatly, one under the other */
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.column h2 {
+  margin: 0 0 0.5rem;
+  font-size: 1.1rem;
+  text-align: center;
+  color: #555;
+}
+
+.card {
+  background-color: #fff;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  padding: 0.9rem 1rem;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+
+  position: relative;         /* lets the drag JS nudge top/left */
+  top: 0;
+  left: 0;
+
+  cursor: grab;
+  user-select: none;
+  touch-action: none;         /* pointer events drive the drag, not scrolling */
+  transition: box-shadow 0.2s ease, transform 0.2s ease;
+}
+
+.card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+}
+
+/* kanban.js toggles this class while a card is being dragged
+   so it floats above everything and follows the pointer without lag. */
+.card.dragging {
+  cursor: grabbing;
+  z-index: 1000;
+  transition: none;           /* no easing while the pointer controls it */
+  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.25);
+}
