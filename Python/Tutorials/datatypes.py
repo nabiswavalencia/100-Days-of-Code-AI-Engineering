@@ -41,5 +41,21 @@ child_age = 15
 
 can_vote = user_age >= 18
 cant_vote = child_age < 18
-print(f"Can vote: {can_vote}")
-print(f"Cannot vote: {cant_vote}")
+print(f"{user_age} Can vote: {can_vote}")
+print(f"{child_age} Cannot vote: {cant_vote}")
+
+
+#string methods
+text = "100 days of code"
+print(text.upper())
+print(text.lower())
+print(text.title())
+
+introduction = "My name is Valencia Neema. I am a software engineer and a data scientist."
+
+print(introduction.split())
+print(introduction.split("."))
+print( "Valencia" in introduction)
+print("Python" not in introduction)
+startswith = introduction.startswith("My name")
+print(startswith)
