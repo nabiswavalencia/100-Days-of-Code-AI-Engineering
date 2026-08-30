@@ -1,0 +1,132 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="A personal journal for 100 days of coding and learning.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Newsreader:opsz,wght@6..72,600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+  <title>100 Days of Code | My Learning Journal</title>
+</head>
+<body>
+  <div class="site-shell">
+    <header class="topbar">
+      <a class="brand" href="#home" data-section="home" aria-label="Go to journal home">
+        <span class="brand-mark">100</span>
+        <span class="brand-copy"><strong>100 DAYS OF CODE</strong><small>MY LEARNING JOURNAL</small></span>
+      </a>
+      <nav class="top-nav" aria-label="Main navigation">
+        <button class="nav-link active" data-section="home">Home</button>
+        <button class="nav-link" data-section="calendar">Calendar</button>
+        <button class="nav-link" data-section="program">Plan</button>
+      </nav>
+      <span class="local-note"><span class="status-dot"></span>Saved on this device</span>
+    </header>
+
+    <div class="layout">
+      <aside class="sidebar" aria-label="Journal sections">
+        <p class="sidebar-title">Journal</p>
+        <nav class="side-nav">
+          <button class="side-link active" data-section="home"><span>⌂</span>Overview</button>
+          <button class="side-link" data-section="about"><span>i</span>About</button>
+          <button class="side-link" data-section="recents"><span>↗</span>Recent</button>
+          <button class="side-link" data-section="categories"><span>＋</span>Topics</button>
+          <button class="side-link" data-section="calendar"><span>□</span>Calendar</button>
+          <button class="side-link" data-section="program"><span>→</span>Plan</button>
+        </nav>
+        <div class="side-note">
+          <p>My rule</p>
+          <strong>Learn. Practise. Record.</strong>
+        </div>
+      </aside>
+
+      <main class="main-content">
+        <section class="page-section active" id="home" data-page-section>
+          <div class="intro-grid">
+            <div class="intro-copy">
+              <p class="label">100 DAYS OF CODE</p>
+              <h1><strike>One day.</strike><br><em>DAY ONE.</em></h1>
+              <p class="lead">A simple record of what I am learning, what I am building, and what I need to practise again on my way into AI engineering.</p>
+              <div class="actions">
+                <button class="primary-btn" id="add-day-btn">+ Add today’s entry</button>
+                <button class="text-btn" data-section="program">See my plan <span>→</span></button>
+              </div>
+            </div>
+            <div class="progress-card">
+              <div class="progress-heading"><span>23 AUG — 30 NOV 2026</span><span>100 DAYS</span></div>
+              <strong class="progress-number" id="progress-number">00<span>/100</span></strong>
+              <div class="progress-track"><span id="progress-bar"></span></div>
+              <div class="progress-footer"><span>Days completed</span><strong id="progress-label">0% complete</strong></div>
+            </div>
+          </div>
+
+          <div class="metrics">
+            <div><span>Next day</span><strong id="current-day">DAY 01</strong><small>Keep moving</small></div>
+            <div><span>Time logged</span><strong id="total-hours">00h</strong><small>Coding time</small></div>
+            <div><span>Entries</span><strong id="journal-count">0 entries</strong><small>Written record</small></div>
+          </div>
+
+          <div class="section-heading"><div><p class="label">MY JOURNAL</p><h2>What I worked on.</h2></div></div>
+          <section id="journals" class="journal-grid" aria-live="polite"></section>
+        </section>
+
+        <section class="page-section" id="about" data-page-section>
+          <div class="section-heading"><div><p class="label">ABOUT THIS JOURNEY</p><h2>Why I’m doing this.</h2></div></div>
+          <div class="content-panel"><p>Four months after my final-year exams, I decided to give my learning a clear shape. This journal is where I will record the small, practical steps behind my move into AI engineering.</p><p>I am combining Python and JavaScript with data, machine learning, generative AI, and real projects. The aim is not to rush through every topic. It is to build useful habits and understand what I am practising.</p></div>
+        </section>
+
+        <section class="page-section" id="recents" data-page-section>
+          <div class="section-heading"><div><p class="label">RECENT ENTRIES</p><h2>What I have been doing.</h2></div></div>
+          <div id="recent-list" class="recent-list"></div>
+        </section>
+
+        <section class="page-section" id="categories" data-page-section>
+          <div class="section-heading"><div><p class="label">TOPICS</p><h2>What I’m learning.</h2></div></div>
+          <div class="topic-grid">
+            <div><span>01</span><h3>Python + JavaScript</h3><p>Programming, web pages, APIs, and problem solving.</p></div>
+            <div><span>02</span><h3>Data + SQL</h3><p>Working with data, analysis, and clear explanations.</p></div>
+            <div><span>03</span><h3>ML + Deep Learning</h3><p>Models, evaluation, neural networks, and PyTorch.</p></div>
+            <div><span>04</span><h3>GenAI + Projects</h3><p>RAG, agents, deployment, and useful applications.</p></div>
+          </div>
+        </section>
+
+        <section class="page-section" id="calendar" data-page-section>
+          <div class="section-heading"><div><p class="label">100-DAY CALENDAR</p><h2>Every day has a place.</h2></div><span class="count-pill" id="calendar-summary">0 / 100 complete</span></div>
+          <div class="calendar-legend"><span><i class="legend-dot complete"></i>Complete</span><span><i class="legend-dot open"></i>Open</span><span><i class="legend-dot recovery"></i>Needs another try</span></div>
+          <div id="calendar-grid" class="calendar-grid"></div>
+          <div id="calendar-detail" class="calendar-detail"><p>Select a day to view its entry.</p></div>
+        </section>
+
+        <section class="page-section" id="program" data-page-section>
+          <div class="section-heading"><div><p class="label">MY PLAN</p><h2>A steady route through the basics.</h2></div></div>
+          <div class="plan-list">
+            <div><span>01</span><div><h3>Python and web basics</h3><p>Programming fundamentals, Git, HTML, CSS, JavaScript, APIs, and testing.</p></div></div>
+            <div><span>02</span><div><h3>Math and data</h3><p>Linear algebra, probability, statistics, NumPy, pandas, and SQL.</p></div></div>
+            <div><span>03</span><div><h3>Machine learning</h3><p>Regression, classification, clustering, evaluation, and practical projects.</p></div></div>
+            <div><span>04</span><div><h3>Deep learning and GenAI</h3><p>Neural networks, PyTorch, transformers, embeddings, RAG, and agents.</p></div></div>
+            <div><span>05</span><div><h3>Build and share</h3><p>FastAPI, deployment, and projects that solve a real problem.</p></div></div>
+          </div>
+        </section>
+      </main>
+    </div>
+
+    <footer class="footer"><span>100 DAYS OF CODE</span><span>Learning in public, one entry at a time.</span></footer>
+  </div>
+
+  <dialog id="journal-dialog" class="journal-dialog">
+    <form method="dialog" id="journal-form">
+      <div class="dialog-header"><div><p class="label" id="dialog-kicker">NEW ENTRY</p><h2 id="dialog-title">Add a journal entry</h2></div><button type="button" class="close-btn" id="close-dialog" aria-label="Close">×</button></div>
+      <input type="hidden" id="entry-id">
+      <div class="form-grid"><label>Day<input id="entry-day" type="number" min="1" max="100" required></label><label>Date<input id="entry-date" type="date" required></label></div>
+      <label>Title<input id="entry-title" type="text" placeholder="What did you work on?" required></label>
+      <label>What I did<textarea id="entry-content" rows="4" placeholder="Write what you actually did..."></textarea></label>
+      <label>If I need another try<textarea id="entry-recovery" rows="3" placeholder="How will you return to this?"></textarea></label>
+      <div class="dialog-actions"><button type="button" class="danger-btn" id="delete-entry-btn">Delete entry</button><div><button type="button" class="text-btn" id="cancel-dialog">Cancel</button><button type="submit" class="primary-btn">Save entry</button></div></div>
+    </form>
+  </dialog>
+  <div id="toast" class="toast" role="status"></div>
+  <script src="script.js"></script>
+</body>
+</html>
