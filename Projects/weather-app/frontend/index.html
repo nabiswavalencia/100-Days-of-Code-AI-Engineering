@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Historical Weather Patterns</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
+  <style>
+    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: #f4f6f8; margin: 0; padding: 20px; }
+    .container { max-width: 900px; margin: 0 auto; background: white; padding: 25px; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
+    h1 { margin-top: 0; color: #1e293b; font-size: 1.5rem; }
+    .form-grid { display: grid; grid-template-columns: 2fr 1fr auto; gap: 10px; margin-bottom: 20px; align-items: end; }
+    label { display: block; font-size: 0.85rem; color: #64748b; margin-bottom: 4px; }
+    input { width: 100%; padding: 10px; border: 1px solid #cbd5e1; border-radius: 6px; box-sizing: border-box; }
+    button { padding: 10px 18px; background: #2563eb; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; }
+    button:hover { background: #1d4ed8; }
+    button:disabled { background: #94a3b8; cursor: not-allowed; }
+    .status { min-height: 1.2em; margin-bottom: 12px; font-size: 0.9rem; color: #64748b; }
+    .status.error { color: #dc2626; }
+    .chart-box { position: relative; width: 100%; height: 400px; margin-bottom: 24px; }
+    table { width: 100%; border-collapse: collapse; margin-bottom: 20px; }
+    th, td { text-align: left; padding: 8px 10px; border-bottom: 1px solid #e2e8f0; font-size: 0.9rem; }
+    th { color: #475569; font-weight: 600; }
+    .save-bar { display: none; align-items: center; gap: 10px; padding: 14px; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; }
+    .save-bar span { font-size: 0.9rem; color: #334155; margin-right: auto; }
+    .save-bar button { background: #16a34a; }
+    .save-bar button:hover { background: #15803d; }
+    #saveDataBtn { background: #0891b2; }
+    #saveDataBtn:hover { background: #0e7490; }
+    [hidden] { display: none !important; }
+  </style>
+</head>
+<body>
+
+<div class="container">
+  <h1>Past Days Weather Trends</h1>
+  <div class="form-grid">
+    <div>
+      <label>Location</label>
+      <input type="text" id="location" placeholder="e.g., Nairobi, Bungoma, London">
+    </div>
+    <div>
+      <label>Days to view</label>
+      <input type="number" id="days" min="1" max="31" value="7">
+    </div>
+    <div>
+      <button id="loadBtn" onclick="fetchWeather()">Load Data</button>
+    </div>
+  </div>
+
+  <p class="status" id="status"></p>
+
+  <div class="chart-box" id="chartBox" hidden>
+    <canvas id="weatherChart"></canvas>
+  </div>
+
+  <table id="dataTable" hidden>
+    <thead>
+      <tr><th>Date</th><th>Max (°C)</th><th>Min (°C)</th><th>Avg (°C)</th></tr>
+    </thead>
+    <tbody id="dataTableBody"></tbody>
+  </table>
+
+  <div class="save-bar" id="saveBar">
+    <span>Would you like to save this chart and/or data?</span>
+    <button id="saveChartBtn" onclick="saveChart()">Save Chart (PNG)</button>
+    <button id="saveDataBtn" onclick="saveData()">Save Data (CSV)</button>
+  </div>
+</div>
+
+<script>
+  let chartInstance = null;
+  let lastResult = null;
+
+  function setStatus(message, isError = false) {
+    const el = document.getElementById('status');
+    el.textContent = message;
+    el.classList.toggle('error', isError);
+  }
+
+  async function fetchWeather() {
+    const location = document.getElementById('location').value.trim();
+    const days = parseInt(document.getElementById('days').value, 10);
+    const loadBtn = document.getElementById('loadBtn');
+
+    if (!location) {
+      setStatus('Please enter a location.', true);
+      return;
+    }
+    if (!days || days < 1) {
+      setStatus('Please enter a valid number of days.', true);
+      return;
+    }
+
+    loadBtn.disabled = true;
+    setStatus('Fetching weather data...');
+    document.getElementById('saveBar').style.display = 'none';
+
+    try {
+      const res = await fetch(`/api/weather-history?location=${encodeURIComponent(location)}&days=${days}`);
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.detail || 'Could not fetch weather data.');
+
+      lastResult = data;
+      renderChart(data);
+      renderTable(data);
+      setStatus(`Showing ${data.days.length} day(s) for ${data.location}.`);
+      document.getElementById('saveBar').style.display = 'flex';
+    } catch (err) {
+      setStatus(err.message, true);
+    } finally {
+      loadBtn.disabled = false;
+    }
+  }
+
+  function renderChart(data) {
+    document.getElementById('chartBox').hidden = false;
+    const ctx = document.getElementById('weatherChart').getContext('2d');
+    if (chartInstance) {
+      chartInstance.destroy();
+    }
+
+    chartInstance = new Chart(ctx, {
+      type: 'line',
+      data: {
+        labels: data.days.map(d => d.date),
+        datasets: [
+          { label: 'Max (°C)', data: data.days.map(d => d.max_temp), borderColor: '#dc2626', backgroundColor: 'rgba(220, 38, 38, 0.1)', tension: 0.3 },
+          { label: 'Min (°C)', data: data.days.map(d => d.min_temp), borderColor: '#2563eb', backgroundColor: 'rgba(37, 99, 235, 0.1)', tension: 0.3 },
+          { label: 'Avg (°C)', data: data.days.map(d => d.avg_temp), borderColor: '#16a34a', borderDash: [6, 4], tension: 0.3 }
+        ]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: { title: { display: true, text: `${data.location} — Past ${data.days.length} days` } },
+        scales: { y: { title: { display: true, text: 'Temperature (°C)' } } }
+      }
+    });
+  }
+
+  function renderTable(data) {
+    const body = document.getElementById('dataTableBody');
+    body.innerHTML = '';
+    data.days.forEach(d => {
+      const row = document.createElement('tr');
+      row.innerHTML = `<td>${d.date}</td><td>${d.max_temp.toFixed(1)}</td><td>${d.min_temp.toFixed(1)}</td><td>${d.avg_temp.toFixed(1)}</td>`;
+      body.appendChild(row);
+    });
+    document.getElementById('dataTable').hidden = false;
+  }
+
+  function saveChart() {
+    if (!chartInstance) return;
+    const link = document.createElement('a');
+    link.href = chartInstance.toBase64Image();
+    link.download = `${lastResult.location.replace(/[^a-z0-9]+/gi, '_')}_weather_chart.png`;
+    link.click();
+  }
+
+  function saveData() {
+    if (!lastResult) return;
+    const header = 'date,max_temp,min_temp,avg_temp\n';
+    const rows = lastResult.days.map(d => `${d.date},${d.max_temp},${d.min_temp},${d.avg_temp}`).join('\n');
+    const blob = new Blob([header + rows], { type: 'text/csv' });
+    const link = document.createElement('a');
+    link.href = URL.createObjectURL(blob);
+    link.download = `${lastResult.location.replace(/[^a-z0-9]+/gi, '_')}_weather.csv`;
+    link.click();
+    URL.revokeObjectURL(link.href);
+  }
+</script>
+</body>
+</html>
