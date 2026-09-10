@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rock Paper Scissors</title>
+    <style>
+        :root {
+            --bg: #f4f4f8;
+            --card: #ffffff;
+            --text: #1e1e28;
+            --muted: #6b6b7b;
+            --accent: #4f46e5;
+            --win: #16a34a;
+            --lose: #dc2626;
+            --tie: #6b6b7b;
+        }
+
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --bg: #15151c;
+                --card: #1f1f2b;
+                --text: #ececf1;
+                --muted: #9a9aad;
+                --accent: #8b83ff;
+            }
+        }
+
+        * { box-sizing: border-box; }
+
+        body {
+            margin: 0;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 24px;
+            font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+        }
+
+        .game {
+            width: 100%;
+            max-width: 440px;
+            background: var(--card);
+            border-radius: 16px;
+            padding: 28px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.12);
+            text-align: center;
+        }
+
+        h1 {
+            margin: 0 0 4px;
+            font-size: 1.5rem;
+        }
+
+        .subtitle {
+            margin: 0 0 20px;
+            color: var(--muted);
+            font-size: 0.9rem;
+        }
+
+        .scoreboard {
+            display: flex;
+            justify-content: space-around;
+            margin-bottom: 20px;
+        }
+
+        .score-box .label {
+            font-size: 0.8rem;
+            color: var(--muted);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .score-box .value {
+            font-size: 2rem;
+            font-weight: 700;
+        }
+
+        .choices {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            margin-bottom: 20px;
+        }
+
+        .choice-btn {
+            flex: 1;
+            padding: 16px 0;
+            font-size: 1.8rem;
+            border: 2px solid transparent;
+            border-radius: 12px;
+            background: var(--bg);
+            cursor: pointer;
+            transition: transform 0.1s ease, border-color 0.15s ease;
+        }
+
+        .choice-btn:hover { border-color: var(--accent); }
+        .choice-btn:active { transform: scale(0.94); }
+        .choice-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+        .result {
+            min-height: 3.2rem;
+            margin-bottom: 16px;
+        }
+
+        .result .headline {
+            font-weight: 600;
+            font-size: 1.05rem;
+        }
+
+        .result .detail {
+            font-size: 0.9rem;
+            color: var(--muted);
+        }
+
+        .win { color: var(--win); }
+        .lose { color: var(--lose); }
+        .tie { color: var(--tie); }
+
+        #log {
+            list-style: none;
+            padding: 0;
+            margin: 0 0 16px;
+            max-height: 140px;
+            overflow-y: auto;
+            text-align: left;
+            font-size: 0.85rem;
+        }
+
+        #log li {
+            padding: 6px 8px;
+            border-bottom: 1px solid var(--bg);
+            color: var(--muted);
+        }
+
+        #reset-btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 10px;
+            background: var(--accent);
+            color: #fff;
+            font-size: 0.9rem;
+            cursor: pointer;
+        }
+
+        #reset-btn[hidden] { display: none; }
+    </style>
+</head>
+<body>
+    <main class="game">
+        <h1>Rock Paper Scissors</h1>
+        <p class="subtitle">First to 5 points wins</p>
+
+        <section class="scoreboard">
+            <div class="score-box">
+                <div class="label">You</div>
+                <div class="value" id="human-score">0</div>
+            </div>
+            <div class="score-box">
+                <div class="label">Computer</div>
+                <div class="value" id="computer-score">0</div>
+            </div>
+        </section>
+
+        <section class="choices">
+            <button class="choice-btn" data-choice="rock" aria-label="rock">🪨</button>
+            <button class="choice-btn" data-choice="paper" aria-label="paper">📄</button>
+            <button class="choice-btn" data-choice="scissors" aria-label="scissors">✂️</button>
+        </section>
+
+        <div class="result" id="result">
+            <p class="headline">Pick a move to start</p>
+        </div>
+
+        <ul id="log"></ul>
+
+        <button id="reset-btn" hidden>Play again</button>
+    </main>
+
+    <script>
+        // Grab the elements we need to read from / write to
+        const choiceButtons = document.querySelectorAll(".choice-btn");
+        const humanScoreEl = document.querySelector("#human-score");
+        const computerScoreEl = document.querySelector("#computer-score");
+        const resultEl = document.querySelector("#result");
+        const logEl = document.querySelector("#log");
+        const resetBtn = document.querySelector("#reset-btn");
+
+        const WINNING_SCORE = 5;
+        const EMOJI = { rock: "🪨", paper: "📄", scissors: "✂️" };
+
+        let humanScore = 0;
+        let computerScore = 0;
+
+        function getComputerChoice() {
+            const choices = ["rock", "paper", "scissors"];
+            return choices[Math.floor(Math.random() * choices.length)];
+        }
+
+        // Returns "win", "lose" or "tie" from the human's point of view
+        function getOutcome(human, computer) {
+            if (human === computer) return "tie";
+
+            const beats = {
+                rock: "scissors",
+                paper: "rock",
+                scissors: "paper",
+            };
+            return beats[human] === computer ? "win" : "lose";
+        }
+
+        function addLogEntry(text) {
+            const li = document.createElement("li");
+            li.textContent = text;
+            logEl.prepend(li);
+        }
+
+        function renderResult(outcome, human, computer) {
+            const messages = {
+                win: `You win! ${human} beats ${computer}`,
+                lose: `You lose! ${computer} beats ${human}`,
+                tie: `Tie! You both picked ${human}`,
+            };
+
+            resultEl.innerHTML = `
+                <p class="headline ${outcome}">${EMOJI[human]} vs ${EMOJI[computer]}</p>
+                <p class="detail">${messages[outcome]}</p>
+            `;
+        }
+
+        function endGame() {
+            const playerWon = humanScore > computerScore;
+            resultEl.innerHTML = `
+                <p class="headline ${playerWon ? "win" : "lose"}">
+                    ${playerWon ? "🎉 You won the game!" : "💻 The computer won the game."}
+                </p>
+                <p class="detail">Final score ${humanScore} – ${computerScore}</p>
+            `;
+            choiceButtons.forEach((btn) => (btn.disabled = true));
+            resetBtn.hidden = false;
+        }
+
+        function playRound(humanChoice) {
+            const computerChoice = getComputerChoice();
+            const outcome = getOutcome(humanChoice, computerChoice);
+
+            if (outcome === "win") humanScore++;
+            if (outcome === "lose") computerScore++;
+
+            humanScoreEl.textContent = humanScore;
+            computerScoreEl.textContent = computerScore;
+
+            renderResult(outcome, humanChoice, computerChoice);
+            addLogEntry(`${EMOJI[humanChoice]} ${humanChoice} vs ${EMOJI[computerChoice]} ${computerChoice} — ${outcome}`);
+
+            if (humanScore === WINNING_SCORE || computerScore === WINNING_SCORE) {
+                endGame();
+            }
+        }
+
+        function resetGame() {
+            humanScore = 0;
+            computerScore = 0;
+            humanScoreEl.textContent = "0";
+            computerScoreEl.textContent = "0";
+            logEl.innerHTML = "";
+            resultEl.innerHTML = `<p class="headline">Pick a move to start</p>`;
+            choiceButtons.forEach((btn) => (btn.disabled = false));
+            resetBtn.hidden = true;
+        }
+
+        // Attach one listener per choice button
+        choiceButtons.forEach((button) => {
+            button.addEventListener("click", () => {
+                playRound(button.dataset.choice);
+            });
+        });
+
+        resetBtn.addEventListener("click", resetGame);
+    </script>
+</body>
+</html>

@@ -62,6 +62,18 @@ for (let i = 0; i < 10; i++) {
   console.log(`Count: ${i}`);
 }
 
+// for (let i = 0; i < 3; i++) alert(i)
+
+// run begin
+let counter = 0
+// if condition → run body and run step
+if (counter < 3) { alert(counter); counter++ }
+// if condition → run body and run step
+if (counter < 3) { alert(counter); counter++ }
+// if condition → run body and run step
+if (counter < 3) { alert(counter); counter++ }
+// ...finish, because now i == 3
+
 // More practical example: processing scores
 const testScores = [85, 92, 78, 96, 88];
 for (let i = 0; i < testScores.length; i++) {
