@@ -1,0 +1,150 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>DOM Manipulation</title>
+  </head>
+  <body>
+    <div id="dom-manipulation">
+      <h1>DOM MANIPULATION</h1>
+      <div id="container"></div>
+    </div>
+    <div id="event-listener">
+      <h2>EVENT LISTENERS</h2>
+      <div id="my_event_container">
+
+        <section id="note-inline-attribute" class="my-notes">
+          <h3>Method 1: inline HTML attribute</h3>
+          <p>
+            Specify the function directly on the HTML element with an
+            <code>onclick</code> attribute.
+          </p>
+          <p>
+            Drawback: the JS logic lives inside the HTML, which gets messy
+            fast. You can also only set one "onclick" handler per element
+            this way.
+          </p>
+          <button id="btn-inline" onclick="alert('Hello World')">Click Me</button>
+        </section>
+
+        <section id="note-onevent-property" class="my-notes">
+          <h3>Method 2: on&lt;eventType&gt; property</h3>
+          <p>
+            Set a property in the form of <code>on&lt;eventType&gt;</code>,
+            such as <code>onclick</code> or <code>onmousedown</code>, on the
+            DOM node from your JavaScript.
+          </p>
+          <p>
+            Better: keeps JS and HTML separate.
+            <br />Drawback: still only one handler per event type, because
+            assigning <code>btn.onclick</code> again overwrites the previous
+            function.
+          </p>
+          <button id="btn-onclick">Click Me</button>
+        </section>
+
+        <section id="note-add-event-listener" class="my-notes">
+          <h3>Method 3: addEventListener (preferred)</h3>
+          <p>
+            <code>addEventListener(eventType, callback)</code> is the most
+            flexible approach. It lets you:
+          </p>
+          <ul>
+            <li>attach multiple listeners for the same event type</li>
+            <li>remove listeners later with <code>removeEventListener()</code></li>
+            <li>listen for events that <code>on&lt;event&gt;</code> properties don't expose</li>
+          </ul>
+          <button id="btn-add-listener">Click Me Too</button>
+        </section>
+
+        <section id="note-event-object" class="my-notes">
+          <h3>The event object</h3>
+          <p>
+            The callback receives an <code>event</code> object with useful
+            info about what happened. <code>e.target</code> is the DOM node
+            the event fired on, so you can act on the element that was
+            clicked.
+          </p>
+          <button id="btn-event-object">Click Me (turns blue)</button>
+        </section>
+
+        <section id="note-named-callback" class="my-notes">
+          <h3>Named functions as callbacks</h3>
+          <p>
+            Callbacks can also be named functions, which keeps code cleaner
+            and makes the listener removable (with
+            <code>removeEventListener</code>, using the same function
+            reference).
+          </p>
+          <button id="btn-named-callback">Click Me</button>
+        </section>
+
+        <section id="note-group-of-nodes" class="my-notes">
+          <h3>Attaching listeners to a group of nodes</h3>
+          <p>
+            <code>querySelectorAll</code> returns a NodeList. Loop over it to
+            attach a listener to each node.
+          </p>
+          <div id="button-group">
+            <button id="group-btn-1">Button 1</button>
+            <button id="group-btn-2">Button 2</button>
+            <button id="group-btn-3">Button 3</button>
+          </div>
+        </section>
+
+        <section id="note-useful-event-types" class="my-notes">
+          <h3>Useful event types</h3>
+          <ul>
+            <li><code>click</code> - mouse click / tap</li>
+            <li><code>dblclick</code> - double click</li>
+            <li><code>mouseover</code> - pointer enters an element</li>
+            <li><code>mouseout</code> - pointer leaves an element</li>
+            <li><code>keydown</code> - a key is pressed down</li>
+            <li><code>keyup</code> - a key is released</li>
+            <li><code>submit</code> - a form is submitted</li>
+            <li><code>load</code> - resource (page, image) finished loading</li>
+            <li><code>DOMContentLoaded</code> - HTML is parsed, safe to query the DOM</li>
+          </ul>
+        </section>
+
+        <section id="note-propagation" class="my-notes">
+          <h3>Event propagation: bubbling and capturing</h3>
+          <p>When an event fires on an element, it travels:</p>
+          <ol>
+            <li>capturing phase: from the document down to the target</li>
+            <li>target phase: the element itself</li>
+            <li>bubbling phase: back up from the target to the document</li>
+          </ol>
+          <p>By default listeners run during the bubbling phase.</p>
+          <ul>
+            <li><code>e.stopPropagation()</code> - stops the event travelling further up/down</li>
+            <li><code>e.preventDefault()</code> - cancels the browser's default action (e.g. stops a form from reloading the page)</li>
+          </ul>
+          <form id="demo-form">
+            <input type="text" placeholder="Type something" />
+            <button type="submit">Submit (won't reload the page)</button>
+          </form>
+        </section>
+
+        <section id="note-delegation" class="my-notes">
+          <h3>Event delegation</h3>
+          <p>
+            Instead of adding a listener to every child, add ONE listener to
+            the parent and use <code>e.target</code> to figure out which
+            child was interacted with. This also works for elements added to
+            the DOM later.
+          </p>
+          <div id="delegation-container">
+            <button id="delegate-btn-1">Click Me</button>
+            <button id="delegate-btn-2">Click Me</button>
+            <button id="delegate-btn-3">Click Me</button>
+          </div>
+        </section>
+
+      </div>
+    </div>
+    <script src="dom-manipulation.js"></script>
+    <script src="event-listener.js"></script>
+  </body>
+</html>

@@ -3,11 +3,11 @@ const div = document.createElement("div");
 
 //Append elements
 
-parentNode.appendChild(childNode)
-parentNode.insertBefore(newNode, referenceNode)
+// parentNode.appendChild(childNode);
+// parentNode.insertBefore(newNode, referenceNode);
 
 //Remove elements
-parentNode.removeChild(child)
+// parentNode.removeChild(child);
 
 //Adding inline style
 
@@ -110,8 +110,9 @@ container.appendChild(blueH3);
 
 // a <div> with a black border and pink background containing an <h1> and a <p>
 const box = document.createElement("div");
-box.style.border = "1px solid black";
-box.style.backgroundColor = "pink";
+// box.style.border = "1px solid black";
+// box.style.backgroundColor = "pink";
+box.setAttribute("style", "border: 1px solid black; background-color: pink;")
 
 const boxHeading = document.createElement("h1");
 boxHeading.textContent = "I'm in a div";
@@ -123,5 +124,4 @@ boxPara.textContent = "ME TOO!";
 box.appendChild(boxHeading);
 box.appendChild(boxPara);
 container.appendChild(box);
-
 
