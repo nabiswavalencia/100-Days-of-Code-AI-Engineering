@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>RMS Titanic: The Story in Data</title>
+  <link rel="stylesheet" href="style.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
+</head>
+<body>
+
+<header class="hero">
+  <h1>RMS Titanic: The Story in Data</h1>
+  <p>On her maiden voyage from Southampton to New York, the "unsinkable" ship struck an iceberg and sank in the early hours of April 15, 1912. Scroll down to read what happened, then explore the passenger records for yourself.</p>
+</header>
+
+<div class="container">
+
+  <section class="story">
+    <h2>What happened</h2>
+    <p>RMS Titanic departed Southampton, England on April 10, 1912, calling at Cherbourg and Queenstown before heading for New York City. At the time, she was the largest ship afloat, and was marketed as being practically unsinkable thanks to her watertight compartments.</p>
+    <p>Just before midnight on April 14, lookouts spotted an iceberg too late to avoid it. The collision tore open several compartments along the starboard side, and water began flooding in faster than the ship could handle. Titanic sank in the early hours of April 15, about two hours and forty minutes after impact.</p>
+    <p>There were not enough lifeboats for everyone on board, and boats were often launched only partially filled. Passenger class, age, and sex all played a role in who made it into a lifeboat and who didn't — patterns that are still visible in the data below.</p>
+    <p class="note">Note: the dataset used here is the well-known Kaggle Titanic training set of 891 passengers with a recorded outcome — not the full passenger and crew manifest (roughly 2,224 people were aboard in total).</p>
+  </section>
+
+  <section class="stats">
+    <h2>Explore the numbers</h2>
+    <button id="loadStatsBtn">Load the Numbers</button>
+    <p class="status" id="statsStatus"></p>
+
+    <div class="stat-grid" id="statGrid" hidden></div>
+
+    <div class="chart-box" id="chartBox" hidden>
+      <canvas id="survivalChart"></canvas>
+    </div>
+  </section>
+
+  <section class="explorer">
+    <h2>Passenger explorer</h2>
+    <div class="filters">
+      <div>
+        <label for="filterClass">Class</label>
+        <select id="filterClass">
+          <option value="">Any</option>
+          <option value="1">1st</option>
+          <option value="2">2nd</option>
+          <option value="3">3rd</option>
+        </select>
+      </div>
+      <div>
+        <label for="filterSex">Sex</label>
+        <select id="filterSex">
+          <option value="">Any</option>
+          <option value="male">Male</option>
+          <option value="female">Female</option>
+        </select>
+      </div>
+      <div>
+        <label for="filterSurvived">Outcome</label>
+        <select id="filterSurvived">
+          <option value="">Any</option>
+          <option value="1">Survived</option>
+          <option value="0">Did not survive</option>
+        </select>
+      </div>
+      <button id="searchBtn">Search</button>
+    </div>
+
+    <p class="status" id="explorerStatus"></p>
+
+    <table id="passengerTable" hidden>
+      <thead>
+        <tr><th>Name</th><th>Sex</th><th>Age</th><th>Class</th><th>Fare</th><th>Outcome</th></tr>
+      </thead>
+      <tbody id="passengerTableBody"></tbody>
+    </table>
+  </section>
+
+</div>
+
+<script src="script.js"></script>
+</body>
+</html>
