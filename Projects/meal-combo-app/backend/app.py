@@ -1,7 +1,8 @@
-from fastapi import FastAPI, HTTPException, Query
+from fastapi import FastAPI, HTTPException, Query, Request
+from fastapi.responses import JSONResponse
 from pydantic import BaseModel, Field
 
-from db import load_menu, record_order
+from db import DatabaseMissingError, load_menu, record_order
 from engine import recommend
 
 app = FastAPI()
@@ -11,10 +12,16 @@ class Order(BaseModel):
     item_ids: list[str] = Field(..., min_length=1)
 
 
+@app.exception_handler(DatabaseMissingError)
+def database_missing(request: Request, exc: DatabaseMissingError):
+    """A clear message instead of a 500 crash when setup_db.py hasn't been run."""
+    return JSONResponse(status_code=503, content={"detail": str(exc)})
+
+
 @app.get("/api/menu")
 def get_menu():
     """The full menu, grouped by slot."""
-    return load_menu() 
+    return load_menu()
 
 
 @app.get("/api/recommend")

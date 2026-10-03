@@ -8,8 +8,6 @@ Steps:
 """
 from itertools import product
 
-
-
 import numpy as np
 
 from menu import MENU

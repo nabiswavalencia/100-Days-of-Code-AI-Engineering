@@ -28,6 +28,21 @@ npm run dev                           # open http://localhost:5173
 
 The API also has an interactive test page at http://localhost:8000/docs.
 
+## Tests
+
+```
+# Backend: 42 tests (engine maths, database, API)
+cd backend
+pip install -r requirements-dev.txt
+python -m pytest
+
+# Frontend: 25 tests (components and the full app with a fake API)
+cd frontend
+npm test
+```
+
+Tests use a temporary database, so they never touch your real `meals.db`.
+
 ## API
 
 | Endpoint | What it does |

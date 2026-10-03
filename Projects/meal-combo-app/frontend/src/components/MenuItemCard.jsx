@@ -7,10 +7,16 @@ function MenuItemCard({ item, eatenRecently, onToggleHistory }) {
       <div>
         <h3>{item.name}</h3>
         <p className="meta">
-          KES {item.price} · ★ {item.rating} · {item.purchases} orders
+          <strong className="price">KES {item.price}</strong> · ★ {item.rating} ·{" "}
+          {item.purchases} orders
         </p>
       </div>
-      <button type="button" onClick={() => onToggleHistory(item.id)}>
+      <button
+        type="button"
+        aria-pressed={eatenRecently}
+        aria-label={`${item.name}: ${eatenRecently ? "undo ate yesterday" : "ate yesterday"}`}
+        onClick={() => onToggleHistory(item.id)}
+      >
         {eatenRecently ? "Undo" : "Ate yesterday"}
       </button>
     </li>

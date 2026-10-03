@@ -1,17 +1,41 @@
 :root {
   --bg: #faf7f2;
   --surface: #ffffff;
+  --surface-2: #f5efe7;
   --text: #2b2118;
-  --muted: #7a6a5a;
+  --muted: #6f5f50;
   --accent: #c2410c;
+  --accent-text: #ffffff;
+  --accent-soft: #fdebd9;
+  --success: #15803d;
+  --danger: #b91c1c;
   --border: #eadfd3;
   font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
   color: var(--text);
   background: var(--bg);
+  color-scheme: light;
+}
+
+/* Dark mode follows the device setting */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #1a1511;
+    --surface: #241d17;
+    --surface-2: #2e251d;
+    --text: #f3ece4;
+    --muted: #b5a594;
+    --accent: #fb923c;
+    --accent-text: #1a1511;
+    --accent-soft: #3d2a1b;
+    --success: #4ade80;
+    --danger: #f87171;
+    --border: #3a2f25;
+    color-scheme: dark;
+  }
 }
 
 * { box-sizing: border-box; }
-body { margin: 0; }
+body { margin: 0; background: var(--bg); }
 h1, h2, h3, p { margin: 0; }
 
 .app { max-width: 1100px; margin: 0 auto; padding: 24px 16px; }
@@ -23,7 +47,7 @@ h1, h2, h3, p { margin: 0; }
 /* Two-column layout on wide screens, stacked on phones */
 .layout { display: grid; gap: 20px; grid-template-columns: 1fr; }
 @media (min-width: 800px) {
-  .layout { grid-template-columns: 320px 1fr; align-items: start; }
+  .layout { grid-template-columns: 340px 1fr; align-items: start; }
   .sidebar { position: sticky; top: 16px; }
 }
 
@@ -37,15 +61,45 @@ h1, h2, h3, p { margin: 0; }
 }
 .panel h2 { font-size: 1.1rem; margin-bottom: 12px; }
 
+/* ---------- Budget form ---------- */
 label { display: block; font-weight: 600; margin-bottom: 8px; }
 input {
   width: 100%;
   padding: 10px;
   font-size: 1rem;
+  color: var(--text);
+  background: var(--surface);
   border: 1px solid var(--border);
   border-radius: 8px;
 }
+input:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+input[aria-invalid="true"] { border-color: var(--danger); }
 
+.field-error { color: var(--danger); font-size: 0.875rem; margin-top: 6px; }
+
+.presets { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
+
+/* ---------- Buttons ---------- */
+button {
+  flex-shrink: 0;
+  padding: 6px 12px;
+  font: inherit;
+  font-size: 0.875rem;
+  border: 1px solid var(--accent);
+  border-radius: 999px;
+  background: transparent;
+  color: var(--accent);
+  cursor: pointer;
+}
+button:hover:not(:disabled) { background: var(--accent); color: var(--accent-text); }
+button:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+button:disabled { opacity: 0.5; cursor: not-allowed; }
+
+.btn-primary { background: var(--accent); color: var(--accent-text); font-weight: 600; }
+
+.chip--active { background: var(--accent); color: var(--accent-text); }
+
+/* ---------- Lists and cards ---------- */
 .item-list, .combo-list { list-style: none; padding: 0; margin: 0; display: grid; gap: 10px; }
 
 .item-card {
@@ -59,22 +113,33 @@ input {
 }
 .item-card h3 { font-size: 1rem; }
 .item-card--eaten { opacity: 0.5; }
+.item-card--eaten h3 { text-decoration: line-through; }
 
 .meta { color: var(--muted); font-size: 0.875rem; margin-top: 4px; }
+.price { color: var(--text); }
 
-button {
-  flex-shrink: 0;
-  padding: 6px 12px;
-  border: 1px solid var(--accent);
-  border-radius: 999px;
-  background: transparent;
-  color: var(--accent);
-  cursor: pointer;
+.combo-card {
+  padding: 12px;
+  border-left: 4px solid var(--border);
+  background: var(--surface-2);
+  border-radius: 6px;
 }
-button:hover { background: var(--accent); color: #fff; }
+.combo-card--best { border-left-color: var(--accent); background: var(--accent-soft); }
+.combo-names { font-weight: 600; margin-top: 6px; }
+.combo-footer { display: flex; justify-content: space-between; align-items: center; gap: 12px; margin-top: 4px; }
 
-.combo-card { padding: 12px; border-left: 4px solid var(--accent); background: var(--bg); border-radius: 6px; }
-.combo-names { font-weight: 600; }
+/* Old picks stay visible but fade while new ones load, so the panel doesn't jump */
+.combo-list.is-stale { opacity: 0.6; transition: opacity 0.15s; }
+
+.tags { display: flex; gap: 6px; }
+.tag {
+  font-size: 0.75rem;
+  padding: 2px 8px;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  color: var(--muted);
+}
+.tag--best { border-color: var(--accent); color: var(--accent); font-weight: 600; }
+
 .empty { color: var(--muted); }
-
-.combo-footer { display: flex; justify-content: space-between; align-items: center; gap: 12px; }
+.message { color: var(--success); font-size: 0.875rem; margin-top: 12px; }

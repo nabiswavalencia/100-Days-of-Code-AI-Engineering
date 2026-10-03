@@ -243,7 +243,7 @@ It also has a **cleanup** step. If you type fast, older requests might arrive la
 
 ### The files (in `backend/`)
 
-**`setup_db.py`**: run once. It creates the database and copies the menu in. Running it again resets everything.
+**`setup_db.py`**: run once. It creates the database and copies the menu in. Running it again resets everything. (On Day 42 the table setup moved into `init_db()` in `db.py`, so tests can use it too.)
 
 The database has 3 tables:
 
@@ -282,6 +282,63 @@ order_items:  (1, githeri), (1, kachumbari), (1, chai)
 
 ---
 
+## Day 41: Cleaning up the repo
+
+**What I did:** committed and pushed the backlog from Days 37–40 (plus some older side projects), removed files nobody used anymore (an old Titanic SQLite copy and Vite template leftovers), and added READMEs, including this document.
+
+**Why:** a portfolio repo should show the real history of the work, and a stranger should be able to open any folder and understand it.
+
+---
+
+## Day 42: Review, tests, and a better UI
+
+**What I did:** read through all the code looking for problems, fixed them, wrote tests so they can't come back, and polished the screen.
+
+### What the review found
+
+| Problem | Fix |
+|---|---|
+| Typing a negative or decimal budget **crashed the whole page**. The API rejected it, but React treated the error message as the list of combos. | `budget.js` checks the budget *before* asking the API, and every `fetch` now checks `response.ok`. |
+| One failed request replaced the whole app with an error. | Errors now show inside the "Top picks" panel only, and the menu stays visible. |
+| Double-clicking Order saved **two** orders. | The Order buttons are disabled while an order is sending. |
+| Forgetting `setup_db.py` gave an unclear 500 error and left an empty `meals.db` behind. | The API now replies "Run `python setup_db.py` first" (503) and doesn't create the file. |
+| Database connections were never closed. | `db.connect()` now always closes the connection. |
+| `setup_db.py` ran everything as soon as it was imported, so it couldn't be tested. | The table setup moved into `init_db()` in `db.py`. |
+
+### The tests
+
+**Why tests?** A test is code that checks other code. Once it's written, running `pytest` or `npm test` checks everything in seconds, so I can change things without being afraid of breaking them.
+
+**Backend (`backend/tests/`): 42 tests with pytest**
+
+- `test_engine.py`: z-scores have mean 0 and std 1, Pilau scores +1.277 (the worked example above), there are 60 combos, budgets and history are respected, and Chapati & Beans + Chai wins at KES 150.
+- `test_db.py`: orders are saved, purchases go up, unknown dishes are rejected *without* half-saving the order, and a missing database gives a clear error.
+- `test_api.py`: each endpoint works and rejects bad input (negative budgets, empty orders, and so on).
+- `conftest.py`: gives every test its own **temporary** database, so tests never touch the real `meals.db`.
+
+**Frontend (`frontend/src/*.test.*`): 25 tests with Vitest and React Testing Library**
+
+- `budget.test.js`: which budgets are valid.
+- `RecommendationPanel.test.jsx`: tags, the Top pick badge, empty and error states, and disabled buttons while ordering.
+- `App.test.jsx`: the whole app with a **fake API** (a mocked `fetch`). It includes a **regression test** for each bug above, which is a test that fails if the bug ever comes back.
+
+### UI improvements
+
+- **Quick budget buttons**: KES 150 / 200 / 300.
+- **A clear message for an invalid budget**, right under the input box.
+- **A "Top pick" badge**, and **"Full meal" or "2 items"** tags on each combo.
+- **Smoother loading**: old picks fade while new ones load, instead of disappearing.
+- **"Ordering..."** on the button while an order sends.
+- **Dishes you "ate yesterday" are crossed out.**
+- **Dark mode**, which follows your phone or laptop setting.
+- **Screen reader support**: buttons say which dish they're for, and the picks panel announces changes.
+
+### A React idea I learned: don't store what you can work out
+
+The linter warned me about setting "loading" state inside an effect. The better way: remember *which request* the last answer was for. If it doesn't match the current budget and history, we must be loading. Nothing extra to store, and nothing to get out of sync. It's the same "derived data" idea from Day 37.
+
+---
+
 ## What happens when you click "Order"
 
 Following one click through the whole app:
@@ -305,18 +362,25 @@ meal-combo-app/
 ├── backend/                    (Python)
 │   ├── app.py                  FastAPI endpoints (the waiter)
 │   ├── engine.py               Scoring + combos (the brain)
-│   ├── db.py                   Reading and writing the database
+│   ├── db.py                   Database tables, reading and writing
 │   ├── setup_db.py             Creates meals.db (run once)
 │   ├── menu.py                 Starting menu data
 │   ├── requirements.txt        numpy, fastapi, uvicorn
+│   ├── requirements-dev.txt    + pytest, httpx (for tests)
+│   ├── pytest.ini              Test settings
+│   ├── tests/                  42 backend tests
 │   └── .gitignore              Keeps meals.db out of Git
 └── frontend/                   (React)
-    ├── vite.config.js          Proxy: /api → Python
+    ├── vite.config.js          Proxy: /api → Python, and test settings
     ├── index.html              The page React draws into
     └── src/
         ├── main.jsx            Starts React
         ├── App.jsx             State, fetching, ordering
-        ├── index.css           Styling
+        ├── budget.js           Checks the budget is valid
+        ├── combo.js            A combo's unique key
+        ├── index.css           Styling (light and dark)
+        ├── *.test.js(x)        25 frontend tests
+        ├── test/setup.js       Test helpers
         └── components/
             ├── Header.jsx
             ├── BudgetForm.jsx
@@ -336,6 +400,10 @@ python -m uvicorn app:app --reload
 # Terminal 2: the frontend
 cd frontend
 npm run dev                            # then open http://localhost:5173
+
+# Running the tests
+cd backend  && python -m pytest
+cd frontend && npm test
 ```
 
 ---

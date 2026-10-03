@@ -1,15 +1,74 @@
 import sqlite3
+from contextlib import closing, contextmanager
 from pathlib import Path
 
 DB_PATH = Path(__file__).parent / "meals.db"
 
 SLOT_ORDER = ("main", "side", "drink")
 
+SCHEMA = """
+DROP TABLE IF EXISTS order_items;
+DROP TABLE IF EXISTS orders;
+DROP TABLE IF EXISTS items;
 
+CREATE TABLE items (
+    id        TEXT PRIMARY KEY,
+    name      TEXT NOT NULL,
+    slot      TEXT NOT NULL,      -- main, side or drink
+    price     INTEGER NOT NULL,   -- KES
+    rating    REAL NOT NULL,
+    purchases INTEGER NOT NULL DEFAULT 0
+);
+
+-- One row per order, and one order_items row per dish in that order.
+-- This is the data a machine learning model can learn from later.
+CREATE TABLE orders (
+    id         INTEGER PRIMARY KEY AUTOINCREMENT,
+    created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE order_items (
+    order_id INTEGER NOT NULL REFERENCES orders(id),
+    item_id  TEXT NOT NULL REFERENCES items(id)
+);
+"""
+
+
+class DatabaseMissingError(Exception):
+    """Raised when meals.db hasn't been created yet."""
+
+
+@contextmanager
 def connect():
-    connection = sqlite3.connect(DB_PATH)
-    connection.row_factory = sqlite3.Row  # rows behave like dicts: row["price"]
-    return connection
+    """Opens the database, commits if everything worked, and always closes it.
+
+    (A plain `with sqlite3.connect(...)` commits but never closes the connection.)
+    """
+    # Checked first because sqlite3.connect would silently create an empty file.
+    if not DB_PATH.exists():
+        raise DatabaseMissingError("Database not found. Run `python setup_db.py` first.")
+
+    with closing(sqlite3.connect(DB_PATH)) as connection:
+        connection.row_factory = sqlite3.Row  # rows behave like dicts: row["price"]
+        with connection:  # commit on success, roll back on error
+            yield connection
+
+
+def init_db(menu):
+    """Creates (or resets) the tables and fills items from `menu`. Returns the item count."""
+    rows = [
+        (item["id"], item["name"], slot, item["price"], item["rating"], item["purchases"])
+        for slot, options in menu.items()
+        for item in options
+    ]
+    with closing(sqlite3.connect(DB_PATH)) as connection:
+        connection.executescript(SCHEMA)
+        connection.executemany(
+            "INSERT INTO items (id, name, slot, price, rating, purchases) VALUES (?, ?, ?, ?, ?, ?)",
+            rows,
+        )
+        connection.commit()
+    return len(rows)
 
 
 def load_menu():
@@ -32,11 +91,12 @@ def record_order(item_ids):
     Raises ValueError if any id isn't on the menu.
     """
     with connect() as connection:
-        placeholders = ", ".join("?" for _ in item_ids)
+        unique_ids = set(item_ids)
+        placeholders = ", ".join("?" for _ in unique_ids)
         found = connection.execute(
-            f"SELECT COUNT(*) FROM items WHERE id IN ({placeholders})", item_ids
+            f"SELECT COUNT(*) FROM items WHERE id IN ({placeholders})", list(unique_ids)
         ).fetchone()[0]
-        if found != len(set(item_ids)):
+        if found != len(unique_ids):
             raise ValueError("Unknown item id in order.")
 
         order_id = connection.execute("INSERT INTO orders DEFAULT VALUES").lastrowid
