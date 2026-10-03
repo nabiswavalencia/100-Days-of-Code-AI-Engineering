@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#102a43">
+  <title>Daymark Timers</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="app-shell">
+    <header class="topbar">
+      <a class="brand" href="#top" aria-label="Daymark home">
+        <span class="brand-mark">D</span>
+        <span><strong>DAYMARK</strong><small>LONG-FORM TIMER</small></span>
+      </a>
+      <div class="topbar-actions">
+        <span class="save-state"><i></i>Saved on this device</span>
+        <button class="icon-btn" id="widget-toggle" type="button" title="Toggle compact widget view" aria-label="Toggle compact widget view">↗</button>
+      </div>
+    </header>
+
+    <main id="top">
+      <section class="hero">
+        <div>
+          <p class="eyebrow">YOUR ACTIVE COUNTDOWNS</p>
+          <h1>Keep the finish<br><em>in sight.</em></h1>
+          <p class="hero-copy">Set a date range for each challenge and let the days become visible. Your timers stay right here in the browser.</p>
+        </div>
+        <div class="today-card">
+          <span>Today</span>
+          <strong id="today-date">—</strong>
+          <small id="today-time">—</small>
+        </div>
+      </section>
+
+      <section class="stats" aria-label="Timer summary">
+        <div><span>Active timers</span><strong id="active-count">0</strong></div>
+        <div><span>Days in motion</span><strong id="days-in-motion">0</strong></div>
+        <div><span>Next finish</span><strong id="next-finish">—</strong></div>
+      </section>
+
+      <section class="section-heading">
+        <div><p class="eyebrow">YOUR BOARD</p><h2>Every day counts.</h2></div>
+        <button class="primary-btn" id="add-timer-btn" type="button"><span>+</span> Add timer</button>
+      </section>
+      <section class="timer-grid" id="timer-grid" aria-live="polite"></section>
+      <p class="empty-state" id="empty-state">No timers yet. Add a challenge and give it a finish line.</p>
+    </main>
+
+    <footer><span>DAYMARK</span><span>Small progress, made visible.</span></footer>
+  </div>
+
+  <dialog id="timer-dialog">
+    <form id="timer-form" method="dialog">
+      <div class="dialog-heading"><div><p class="eyebrow" id="dialog-eyebrow">NEW TIMER</p><h2 id="dialog-title">Start a challenge</h2></div><button class="close-btn" id="close-dialog" type="button" aria-label="Close dialog">×</button></div>
+      <input id="timer-id" type="hidden">
+      <label>Timer name<input id="timer-name" type="text" placeholder="100 day challenge" maxlength="42" required></label>
+      <div class="date-grid">
+        <label>Start date<input id="start-date" type="date" required></label>
+        <label>End date<input id="end-date" type="date" required></label>
+      </div>
+      <label class="color-label">Accent color<select id="timer-color"><option value="coral">Coral</option><option value="green">Green</option><option value="blue">Blue</option><option value="yellow">Yellow</option></select></label>
+      <p class="form-error" id="form-error" role="alert"></p>
+      <div class="dialog-actions"><button class="danger-btn" id="delete-timer-btn" type="button">Delete timer</button><div><button class="text-btn" id="cancel-dialog" type="button">Cancel</button><button class="primary-btn" type="submit">Save timer</button></div></div>
+    </form>
+  </dialog>
+  <div class="toast" id="toast" role="status"></div>
+  <script src="script.js"></script>
+</body>
+</html>
