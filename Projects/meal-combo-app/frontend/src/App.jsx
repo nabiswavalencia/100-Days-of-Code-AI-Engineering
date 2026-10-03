@@ -19,18 +19,22 @@ function App() {
   const [menu, setMenu] = useState(null); // null until the API responds
   const [combos, setCombos] = useState([]);
   const [error, setError] = useState(null);
+  const [message, setMessage] = useState(null);
+  // Bumped after every order so both effects below fetch fresh data.
+  const [ordersPlaced, setOrdersPlaced] = useState(0);
 
   // Concept: useEffect runs code AFTER React renders, which is where talking to
-  // the outside world (like an API) belongs. The empty array [] means
-  // "run once, when the app first loads".
+  // the outside world (like an API) belongs. The array at the end lists what
+  // the effect depends on: it runs on first load, then again after each order
+  // so the purchase counts stay up to date.
   useEffect(() => {
     fetch("/api/menu")
       .then((response) => response.json())
       .then(setMenu)
       .catch(() => setError("Could not load the menu. Is the FastAPI server running?"));
-  }, []);
+  }, [ordersPlaced]);
 
-  // [budget, history] means "run again whenever budget or history changes".
+  // Runs again whenever budget, history or the number of orders changes.
   useEffect(() => {
     const params = new URLSearchParams({ budget });
     history.forEach((id) => params.append("history", id));
@@ -47,7 +51,22 @@ function App() {
     return () => {
       ignore = true;
     };
-  }, [budget, history]);
+  }, [budget, history, ordersPlaced]);
+
+  // Concept: sending data with fetch. POST + a JSON body, instead of just reading.
+  function placeOrder(combo) {
+    fetch("/api/orders", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ item_ids: combo.items.map((item) => item.id) }),
+    })
+      .then((response) => {
+        if (!response.ok) throw new Error();
+        setMessage(`Ordered ${combo.items.map((item) => item.name).join(" + ")} 🎉`);
+        setOrdersPlaced((count) => count + 1);
+      })
+      .catch(() => setMessage("Order failed. Please try again."));
+  }
 
   function toggleHistory(id) {
     // Never mutate state directly; always create a new array.
@@ -81,7 +100,12 @@ function App() {
       <main className="layout">
         <aside className="sidebar">
           <BudgetForm budget={budget} onBudgetChange={setBudget} />
-          <RecommendationPanel combos={combos} budget={budget} />
+          <RecommendationPanel
+            combos={combos}
+            budget={budget}
+            onOrder={placeOrder}
+            message={message}
+          />
         </aside>
 
         <div className="menu">

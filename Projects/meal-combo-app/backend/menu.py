@@ -1,6 +1,6 @@
-# Menu data: each key is a slot, each value is the list of options for that slot.
-# Same items and prices (KES) as frontend/src/data/menu.js.
-# This will move into SQLite once the FastAPI layer is built.
+# Seed data for the database: each key is a slot, each value is the list of options.
+# setup_db.py copies this into meals.db. After that, the app reads from the database,
+# so editing this file only takes effect after running setup_db.py again.
 MENU = {
     "main": [
         {"id": "ugali-beef", "name": "Ugali & Beef Stew", "price": 180, "rating": 4.6, "purchases": 120},
