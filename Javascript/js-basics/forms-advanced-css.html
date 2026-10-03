@@ -1,0 +1,196 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Forms &amp; Advanced CSS</title>
+    <link rel="stylesheet" href="forms-advanced-css.css" />
+  </head>
+  <body>
+    <div id="forms-advanced-css">
+      <h1>FORMS &amp; ADVANCED CSS</h1>
+
+      <section id="note-form-basics" class="my-notes">
+        <h2>Form basics</h2>
+        <p>
+          A <code>&lt;form&gt;</code> groups inputs together. Every input
+          should have a matching <code>&lt;label&gt;</code> - clicking the
+          label focuses the input, and screen readers announce it.
+        </p>
+      </section>
+
+      <form id="signup-form" novalidate>
+        <fieldset>
+          <legend>Account details</legend>
+
+          <div class="field">
+            <label for="username">Username</label>
+            <input
+              id="username"
+              name="username"
+              type="text"
+              required
+              minlength="3"
+              maxlength="20"
+              placeholder="e.g. valencia_dev"
+            />
+          </div>
+
+          <div class="field">
+            <label for="email">Email</label>
+            <input id="email" name="email" type="email" required placeholder="you@example.com" />
+          </div>
+
+          <div class="field">
+            <label for="password">Password</label>
+            <input
+              id="password"
+              name="password"
+              type="password"
+              required
+              pattern="(?=.*\d)(?=.*[a-zA-Z]).{8,}"
+              title="At least 8 characters, including a letter and a number"
+              placeholder="At least 8 characters"
+            />
+          </div>
+
+          <div class="field">
+            <label for="age">Age</label>
+            <input id="age" name="age" type="number" min="13" max="120" step="1" />
+          </div>
+
+          <div class="field">
+            <label for="birthday">Birthday</label>
+            <input id="birthday" name="birthday" type="date" />
+          </div>
+
+          <div class="field">
+            <label for="volume">Notification volume</label>
+            <input id="volume" name="volume" type="range" min="0" max="100" value="50" />
+          </div>
+
+          <div class="field">
+            <label for="favorite-color">Favorite color</label>
+            <input id="favorite-color" name="favoriteColor" type="color" value="#7c3aed" />
+          </div>
+        </fieldset>
+
+        <fieldset>
+          <legend>Preferences</legend>
+
+          <div class="field">
+            <label for="plan">Plan</label>
+            <select id="plan" name="plan">
+              <option value="free">Free</option>
+              <option value="pro" selected>Pro</option>
+              <option value="team">Team</option>
+            </select>
+          </div>
+
+          <div class="field">
+            <label for="bio">Bio</label>
+            <textarea id="bio" name="bio" rows="3" maxlength="140" placeholder="Tell us about yourself"></textarea>
+          </div>
+
+          <div class="field field-checkbox">
+            <input id="newsletter" name="newsletter" type="checkbox" checked />
+            <label for="newsletter">Subscribe to the newsletter</label>
+          </div>
+
+          <div class="field field-radio-group">
+            <span class="group-label">Contact method</span>
+            <label><input type="radio" name="contact" value="email" checked /> Email</label>
+            <label><input type="radio" name="contact" value="sms" /> SMS</label>
+          </div>
+        </fieldset>
+
+        <button type="submit">Create account</button>
+        <p id="form-output" aria-live="polite"></p>
+      </form>
+
+      <section id="note-validation" class="my-notes">
+        <h2>Client-side validation</h2>
+        <p>
+          Attributes like <code>required</code>, <code>pattern</code>,
+          <code>minlength</code>/<code>maxlength</code> and
+          <code>min</code>/<code>max</code> let the browser validate for
+          free. <code>form.checkValidity()</code> and
+          <code>input.setCustomValidity()</code> hook into that system from
+          JS instead of reinventing it.
+        </p>
+        <p>
+          <code>novalidate</code> is on this form on purpose, so the demo JS
+          can run its own check and show the messages below instead of the
+          browser's native popups.
+        </p>
+      </section>
+
+      <section id="note-css-variables" class="my-notes">
+        <h2>Advanced CSS: custom properties</h2>
+        <p>
+          CSS variables (<code>--name</code>) are declared once on
+          <code>:root</code> and reused everywhere with
+          <code>var(--name)</code>, instead of repeating the same color or
+          spacing value across the stylesheet.
+        </p>
+        <div class="swatches">
+          <div class="swatch swatch-primary">--color-primary</div>
+          <div class="swatch swatch-accent">--color-accent</div>
+        </div>
+      </section>
+
+      <section id="note-flex-grid" class="my-notes">
+        <h2>Advanced CSS: Flexbox &amp; Grid</h2>
+        <p>
+          Flexbox lays out items along one axis; Grid lays them out on a full
+          2D grid of rows and columns.
+        </p>
+        <p class="label">Flexbox (equal-width row that wraps)</p>
+        <div class="flex-demo">
+          <div class="box">1</div>
+          <div class="box">2</div>
+          <div class="box">3</div>
+          <div class="box">4</div>
+        </div>
+        <p class="label">Grid (fixed 3-column layout)</p>
+        <div class="grid-demo">
+          <div class="box">A</div>
+          <div class="box">B</div>
+          <div class="box">C</div>
+          <div class="box">D</div>
+          <div class="box">E</div>
+          <div class="box">F</div>
+        </div>
+      </section>
+
+      <section id="note-pseudo-classes" class="my-notes">
+        <h2>Advanced CSS: pseudo-classes &amp; combinators</h2>
+        <ul>
+          <li><code>:focus</code> / <code>:hover</code> - interaction states</li>
+          <li><code>:valid</code> / <code>:invalid</code> - form input matches its constraints (or not)</li>
+          <li><code>:nth-child(odd)</code> - pick every other sibling</li>
+          <li><code>.parent &gt; .child</code> - direct child combinator, vs <code>.parent .child</code> (any descendant)</li>
+        </ul>
+        <ul class="stripe-demo">
+          <li>Row one</li>
+          <li>Row two</li>
+          <li>Row three</li>
+          <li>Row four</li>
+        </ul>
+      </section>
+
+      <section id="note-transitions" class="my-notes">
+        <h2>Advanced CSS: transitions &amp; animation</h2>
+        <p>
+          <code>transition</code> smoothly animates a property change (e.g.
+          on hover). <code>@keyframes</code> + <code>animation</code> runs a
+          repeating or multi-step animation on its own.
+        </p>
+        <div class="transition-demo" tabindex="0">Hover or focus me</div>
+        <div class="pulse-demo">Pulsing</div>
+      </section>
+    </div>
+
+    <script src="forms-advanced-css.js"></script>
+  </body>
+</html>

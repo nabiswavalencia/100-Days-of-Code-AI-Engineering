@@ -1,0 +1,226 @@
+/* Custom properties: declared once on :root, reused with var(--name) */
+:root {
+  --color-primary: #7c3aed;
+  --color-accent: #f59e0b;
+  --color-bg: #f9fafb;
+  --color-border: #d1d5db;
+  --color-invalid: #dc2626;
+  --color-valid: #16a34a;
+  --radius: 8px;
+  --gap: 12px;
+}
+
+body {
+  font-family: system-ui, sans-serif;
+  background: var(--color-bg);
+  color: #111827;
+  max-width: 720px;
+  margin: 0 auto;
+  padding: 24px;
+}
+
+.my-notes {
+  margin-bottom: 24px;
+}
+
+/* --- Form basics --- */
+
+#signup-form {
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  padding: 16px;
+  margin-bottom: 24px;
+}
+
+fieldset {
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  margin-bottom: var(--gap);
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-bottom: var(--gap);
+}
+
+.field-checkbox,
+.field-radio-group label {
+  flex-direction: row;
+  align-items: center;
+  gap: 8px;
+}
+
+.group-label {
+  font-weight: 600;
+}
+
+input,
+select,
+textarea {
+  padding: 8px;
+  border: 1px solid var(--color-border);
+  border-radius: 6px;
+  font: inherit;
+}
+
+/* :focus - highlights the active field */
+input:focus,
+select:focus,
+textarea:focus {
+  outline: none;
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px rgb(124 58 237 / 20%);
+}
+
+/* :valid / :invalid - reflect the input's own constraint state.
+   :placeholder-shown avoids flagging empty untouched fields red on load. */
+input:not(:placeholder-shown):invalid,
+input:invalid:not(:placeholder-shown) {
+  border-color: var(--color-invalid);
+}
+
+input:not(:placeholder-shown):valid {
+  border-color: var(--color-valid);
+}
+
+button {
+  background: var(--color-primary);
+  color: white;
+  border: none;
+  border-radius: 6px;
+  padding: 10px 16px;
+  font: inherit;
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+
+button:hover {
+  background: #6d28d9;
+}
+
+#form-output {
+  font-size: 0.9rem;
+  color: var(--color-invalid);
+}
+
+/* --- Custom property swatches --- */
+
+.swatches {
+  display: flex;
+  gap: var(--gap);
+}
+
+.swatch {
+  flex: 1;
+  padding: 16px;
+  border-radius: var(--radius);
+  color: white;
+  text-align: center;
+  font-size: 0.85rem;
+}
+
+.swatch-primary {
+  background: var(--color-primary);
+}
+
+.swatch-accent {
+  background: var(--color-accent);
+}
+
+/* --- Flexbox demo --- */
+
+.label {
+  font-weight: 600;
+  margin-bottom: 4px;
+}
+
+.flex-demo {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--gap);
+  margin-bottom: var(--gap);
+}
+
+.flex-demo .box {
+  flex: 1 1 100px;
+}
+
+/* --- Grid demo --- */
+
+.grid-demo {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--gap);
+}
+
+.box {
+  background: var(--color-primary);
+  color: white;
+  border-radius: var(--radius);
+  padding: 20px;
+  text-align: center;
+  font-weight: 600;
+}
+
+/* --- Pseudo-classes / combinators demo --- */
+
+.stripe-demo {
+  list-style: none;
+  padding: 0;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  overflow: hidden;
+}
+
+.stripe-demo li {
+  padding: 8px 12px;
+}
+
+/* :nth-child(odd) - stripes every other row */
+.stripe-demo li:nth-child(odd) {
+  background: #f3f4f6;
+}
+
+.stripe-demo li:hover {
+  background: var(--color-accent);
+  color: white;
+}
+
+/* --- Transitions & animation demo --- */
+
+.transition-demo {
+  display: inline-block;
+  padding: 16px 20px;
+  border-radius: var(--radius);
+  background: var(--color-primary);
+  color: white;
+  transition: transform 0.2s ease, background 0.2s ease;
+  margin-bottom: var(--gap);
+}
+
+.transition-demo:hover,
+.transition-demo:focus {
+  transform: scale(1.05);
+  background: var(--color-accent);
+  outline: none;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.4;
+  }
+}
+
+.pulse-demo {
+  display: inline-block;
+  padding: 16px 20px;
+  border-radius: var(--radius);
+  background: var(--color-accent);
+  color: white;
+  animation: pulse 1.5s ease-in-out infinite;
+}
