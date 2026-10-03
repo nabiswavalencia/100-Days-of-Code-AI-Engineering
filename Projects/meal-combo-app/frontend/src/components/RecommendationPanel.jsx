@@ -19,7 +19,7 @@ function RecommendationPanel({ combos, budget }) {
           <li key={combo.items.map((item) => item.id).join("-")} className="combo-card">
             <p className="combo-names">{combo.items.map((item) => item.name).join(" + ")}</p>
             <p className="meta">
-              KES {combo.total} · ★ {combo.avgRating.toFixed(1)} avg
+              KES {combo.total} · ★ {combo.avg_rating.toFixed(1)} avg
             </p>
           </li>
         ))}
