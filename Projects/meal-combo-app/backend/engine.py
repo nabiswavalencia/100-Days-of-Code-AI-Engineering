@@ -1,5 +1,8 @@
 """Recommendation engine for meal combos.
 
+Each restaurant's menu is scored on its own, so a KES 2,200 platter at
+The Baobab Room is compared with its neighbours, not with a KES 90 githeri.
+
 Steps:
 1. Score every item by standardizing rating and popularity (z-scores).
 2. Build every possible combo (Cartesian product), including 2-item combos.
@@ -9,8 +12,6 @@ Steps:
 from itertools import product
 
 import numpy as np
-
-from menu import MENU
 
 # Which slots a combo can be made of. Every combo includes a main.
 COMBO_SHAPES = [
@@ -55,7 +56,7 @@ def build_combos(menu):
     return combos
 
 
-def recommend(budget, history=(), menu=MENU, limit=3):
+def recommend(budget, menu, history=(), limit=3):
     """Top combos within budget that avoid anything in `history` (item ids)."""
     item_scores = score_items(menu)
     results = []
@@ -78,22 +79,3 @@ def recommend(budget, history=(), menu=MENU, limit=3):
 
     results.sort(key=lambda combo: combo["score"], reverse=True)
     return results[:limit]
-
-
-if __name__ == "__main__":
-    def show(title, combos):
-        print(f"\n{title}")
-        if not combos:
-            print("  No combo fits.")
-        for combo in combos:
-            names = " + ".join(item["name"] for item in combo["items"])
-            print(f"  {names:<45} KES {combo['total']:>3}  rating {combo['avg_rating']}  score {combo['score']:+.3f}")
-
-    print("Item scores:")
-    for item_id, score in sorted(score_items(MENU).items(), key=lambda pair: -pair[1]):
-        print(f"  {item_id:<14} {score:+.3f}")
-
-    show("Budget KES 300", recommend(300))
-    show("Budget KES 150", recommend(150))
-    show("Budget KES 300, ate Pilau yesterday", recommend(300, history=["pilau"]))
-    show("Budget KES 100", recommend(100))

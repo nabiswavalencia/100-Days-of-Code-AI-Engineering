@@ -2,7 +2,7 @@
 
 | Project | What it is | Built with |
 |---|---|---|
-| [meal-combo-app](meal-combo-app/) | Chakula Combos: recommends Kenyan meal combos that fit your budget | React, Python, NumPy, FastAPI, SQLite |
+| [meal-combo-app](meal-combo-app/) | Chakula Combos: recommends meal combos that fit your budget, across four Kenyan restaurants | React, Tailwind, Python, NumPy, FastAPI, SQLite |
 | [titanic-project](titanic-project/) | RMS Titanic: The Story in Data | Python, BigQuery SQL, FastAPI, JavaScript, Chart.js |
 | [weather-app](weather-app/) | Historical Weather Patterns | Python, FastAPI, pandas, JavaScript |
 | [timer-app](timer-app/) | Daymark Timers | HTML, CSS, JavaScript |

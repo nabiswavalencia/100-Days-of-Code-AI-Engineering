@@ -339,18 +339,63 @@ The linter warned me about setting "loading" state inside an effect. The better 
 
 ---
 
-## What happens when you click "Order"
+## Version 2: the redesign
 
-Following one click through the whole app:
+**What happened:** I rebuilt the app's whole frontend with design plugins, and grew the backend to match. Version 1 is saved in Git, so `git checkout v1` brings it back.
 
-1. You tap **Order** on "Pilau + Chai" in `RecommendationPanel.jsx`.
-2. `placeOrder()` in `App.jsx` sends `{"item_ids": ["pilau", "chai"]}` to `/api/orders`.
-3. Vite's proxy forwards it to FastAPI on port 8000.
-4. `create_order()` in `app.py` checks the data and calls `record_order()`.
-5. `db.py` saves the order to `meals.db` and adds 1 to Pilau's and Chai's purchases.
-6. React gets "OK", shows 🎉, and increases `ordersPlaced`.
-7. Because `ordersPlaced` changed, both `useEffect`s run again and fetch the fresh menu and picks.
-8. `engine.py` recalculates the z-scores with the new purchase numbers, and the screen updates.
+**What changed:**
+
+- **One menu became four restaurants:** Mama Wanjiku's Kibanda, Kahawa House, The Baobab Room and Moto Pizza & Chicken. Each has its own menu, prices, specials and colour.
+- **Demo login** with three people (Achieng, Brian and Fatuma), so orders belong to someone.
+- **Real pages**: Home, Our Menu, Your Orders and Recommendations, with URLs you can bookmark.
+- **Real photos** of every dish, all openly licensed (see `CREDITS.md`).
+- **A design system** (`DESIGN.md`) and an audit of v1's UI problems (`AUDIT.md`).
+
+**What stayed the same:** the brain. `engine.py` is the Day 38 engine. The only change is that it now takes a restaurant's menu as an input, so each restaurant is scored on its own.
+
+The Day 37–42 sections above describe v1. Their ideas (components, props, state, effects, z-scores, the database) all carried over into v2.
+
+---
+
+## Day 44: "Skip what you had recently" comes from the database
+
+**The gap:** v2 pre-filled the skip list from your **last order only**. That's wrong in two ways:
+
+- If your last order was two weeks ago, it still skipped those dishes.
+- If you ordered twice yesterday, it only skipped the second order.
+
+**The fix: a 24-hour window, worked out by the backend.**
+
+**`backend/db.py`** has a new function, `recent_item_ids(user, restaurant, hours=24)`. It finds every dish this person ordered at this restaurant in the last 24 hours:
+
+```sql
+SELECT DISTINCT oi.item_id FROM order_items oi
+JOIN orders o ON o.id = oi.order_id
+WHERE o.user_id = ? AND o.restaurant_id = ? AND o.created_at >= ?   -- ? = now minus 24 hours
+```
+
+`JOIN` connects the two order tables from Day 40, and `DISTINCT` removes repeats (chai ordered twice only counts once).
+
+**`backend/app.py`** has a new endpoint for it:
+
+| Address | What you get back |
+|---|---|
+| `GET /api/users/achieng/recent-items?restaurant=mama-wanjiku` | `{"hours": 24, "item_ids": ["mw-chai", "mw-githeri", ...]}` |
+
+**`frontend/src/pages/RecommendPage.jsx`** now asks that endpoint instead of looking at the last order, and the message says "Filled in from what you ordered here in the last 24 hours."
+
+**A bug I found on the way: time zones.** The starting orders were saved as if their times were UTC, but they're Kenyan meal times. Kenya is **UTC+3**, so "lunch at 13:15" was really being saved as 16:15 Nairobi time. A "today" breakfast could also end up dated in the *future* if `setup_db.py` ran early in the morning. Now seed times are Nairobi time, stored as UTC, and never in the future. A 24-hour window only works if the times are right.
+
+**Tests (15 new backend, 4 new frontend):**
+
+- Yesterday's lunch counts as recent, and an order from 2 days ago doesn't.
+- **Both** of Fatuma's orders from last night count, not just the last one.
+- An order just over 24 hours old drops out.
+- A new order is recent straight away.
+- No seeded order is in the future.
+- The page asks the right endpoint, skips nothing when there's nothing recent, still works if that request fails, and a skip list in the URL wins.
+
+**Testing with time:** results that depend on "now" would change every time you run the tests. So the tests freeze the clock at **Tuesday 7 October 2026, 12:00 in Nairobi** (`FIXED_NOW` in `tests/conftest.py`), and the answer is the same whenever you run them.
 
 ---
 
@@ -358,35 +403,25 @@ Following one click through the whole app:
 
 ```
 meal-combo-app/
-├── THOUGHT_PROCESS.md          ← this document
+├── README.md, THOUGHT_PROCESS.md, DESIGN.md, AUDIT.md, CREDITS.md
+├── screenshots/                Before (v1) and after (v2), desktop and mobile
 ├── backend/                    (Python)
 │   ├── app.py                  FastAPI endpoints (the waiter)
 │   ├── engine.py               Scoring + combos (the brain)
-│   ├── db.py                   Database tables, reading and writing
+│   ├── db.py                   Tables, reading and writing, recent dishes
+│   ├── seed_data.py            The 4 restaurants, 3 users and past orders
 │   ├── setup_db.py             Creates meals.db (run once)
-│   ├── menu.py                 Starting menu data
-│   ├── requirements.txt        numpy, fastapi, uvicorn
-│   ├── requirements-dev.txt    + pytest, httpx (for tests)
-│   ├── pytest.ini              Test settings
-│   ├── tests/                  42 backend tests
-│   └── .gitignore              Keeps meals.db out of Git
-└── frontend/                   (React)
+│   ├── requirements(-dev).txt
+│   └── tests/                  87 backend tests
+└── frontend/                   (React + Tailwind)
     ├── vite.config.js          Proxy: /api → Python, and test settings
-    ├── index.html              The page React draws into
+    ├── public/images, fonts    Dish photos and self-hosted fonts
     └── src/
-        ├── main.jsx            Starts React
-        ├── App.jsx             State, fetching, ordering
-        ├── budget.js           Checks the budget is valid
-        ├── combo.js            A combo's unique key
-        ├── index.css           Styling (light and dark)
-        ├── *.test.js(x)        25 frontend tests
-        ├── test/setup.js       Test helpers
-        └── components/
-            ├── Header.jsx
-            ├── BudgetForm.jsx
-            ├── MenuSection.jsx
-            ├── MenuItemCard.jsx
-            └── RecommendationPanel.jsx
+        ├── App.jsx             The routes (which page for which URL)
+        ├── pages/              Login, Restaurants, Home, Menu, Orders, Recommend
+        ├── components/         Layout, Order button, Price, dish images…
+        ├── lib/                API calls, budget check, formatting, session
+        └── *.test.js(x)        40 frontend tests
 ```
 
 ## How to run it
@@ -394,11 +429,12 @@ meal-combo-app/
 ```
 # Terminal 1: the backend
 cd backend
-python setup_db.py                     # first time only
+python setup_db.py                     # first time only (running it again resets the data)
 python -m uvicorn app:app --reload
 
 # Terminal 2: the frontend
 cd frontend
+npm install                            # first time only
 npm run dev                            # then open http://localhost:5173
 
 # Running the tests
@@ -410,8 +446,9 @@ cd frontend && npm test
 
 ## Things I'd still like to improve
 
-- **2-item combos win a lot.** Averaging means adding a weaker third dish lowers the score. A small bonus for full meals could balance this.
-- **"Ate yesterday" is forgotten on refresh.** It only lives in React's memory. It could come from the orders table instead.
+- **2-item combos win a lot.** Averaging means adding a weaker third dish lowers the score. A small bonus for full meals could balance this. *(next)*
+- **"You might also like"**: use cosine similarity from Day 43 to suggest dishes like the one you're looking at. *(next)*
+- ~~"Ate yesterday" is forgotten on refresh.~~ Fixed: v2 saved orders per person, and Day 44 made the skip list come from the last 24 hours.
 - **Chai ranks very high** just because it has 200 purchases. Trying different weights would show how much popularity should count.
 
 ## What's next: Day 51 (machine learning)
